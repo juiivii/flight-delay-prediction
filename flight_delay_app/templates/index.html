@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flight Delay Predictor</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+}
+
+/* Glass Card */
+.container {
+    backdrop-filter: blur(20px);
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 20px;
+    padding: 35px;
+    width: 420px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    transition: 0.3s;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+    border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* Title */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 24px;
+}
+
+/* Labels */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    color: #e0e7ff;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Inputs */
+select, input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-top: 0px;
+    border-radius: 10px;
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    outline: none;
+    background: rgba(30, 41, 59, 0.8);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+select:focus, input:focus {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+select option {
+    background: #1e293b;
+    color: #ffffff;
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 22px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Result Card */
+.result {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    border-left: 4px solid #3b82f6;
+    font-size: 14px;
+    line-height: 1.8;
+    display: none;
+    color: #e0e7ff;
+}
+
+/* Highlight */
+.status {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.on-time {
+    color: #22c55e;
+}
+
+.delayed {
+    color: #ef4444;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 6px 0;
+}
+
+.info-label {
+    color: #a5b4fc;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #94a3b8;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>✈️ Flight Delay Predictor</h2>
+
+    <label for="origin">Origin Airport</label>
+    <select id="origin">
+        <option value="">-- Select Origin --</option>
+        <option value="JFK">JFK - New York (JFK)</option>
+        <option value="LAX">LAX - Los Angeles (LAX)</option>
+        <option value="ORD">ORD - Chicago (ORD)</option>
+        <option value="ATL">ATL - Atlanta (ATL)</option>
+        <option value="DFW">DFW - Dallas/Fort Worth (DFW)</option>
+        <option value="DEN">DEN - Denver (DEN)</option>
+        <option value="SFO">SFO - San Francisco (SFO)</option>
+        <option value="MIA">MIA - Miami (MIA)</option>
+        <option value="BOS">BOS - Boston (BOS)</option>
+    </select>
+
+    <label for="dest">Destination Airport</label>
+    <select id="dest">
+        <option value="">-- Select Destination --</option>
+        <option value="JFK">JFK - New York (JFK)</option>
+        <option value="LAX">LAX - Los Angeles (LAX)</option>
+        <option value="ORD">ORD - Chicago (ORD)</option>
+        <option value="ATL">ATL - Atlanta (ATL)</option>
+        <option value="DFW">DFW - Dallas/Fort Worth (DFW)</option>
+        <option value="DEN">DEN - Denver (DEN)</option>
+        <option value="SFO">SFO - San Francisco (SFO)</option>
+        <option value="MIA">MIA - Miami (MIA)</option>
+        <option value="BOS">BOS - Boston (BOS)</option>
+    </select>
+
+    <label for="airline">Airline</label>
+    <select id="airline">
+        <option value="">-- Select Airline --</option>
+        <option value="AA">American Airlines (AA)</option>
+        <option value="DL">Delta (DL)</option>
+        <option value="UA">United (UA)</option>
+        <option value="SW">Southwest (SW)</option>
+        <option value="JB">JetBlue (JB)</option>
+        <option value="NK">Spirit (NK)</option>
+        <option value="F9">Frontier (F9)</option>
+    </select>
+
+    <label for="date">Departure Date</label>
+    <input type="date" id="date">
+    
+    <label for="time">Departure Time</label>
+    <input type="time" id="time">
+
+    <button onclick="predict()">🔍 Predict Flight Status</button>
+
+    <div class="loading" id="loading"></div>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+async function predict() {
+
+    const loading = document.getElementById("loading");
+    const resultBox = document.getElementById("result");
+
+    loading.innerHTML = "🔄 Predicting...";
+    resultBox.style.display = "none";
+
+    const data = {
+        origin: document.getElementById("origin").value,
+        dest: document.getElementById("dest").value,
+        airline: document.getElementById("airline").value,
+        dep_date: document.getElementById("date").value,
+        dep_time: document.getElementById("time").value
+    };
+
+    const res = await fetch("/api/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    loading.innerHTML = "";
+
+    if (result.success) {
+        const statusClass = result.result.prediction === "ON-TIME" ? "on-time" : "delayed";
+        const statusIcon = result.result.prediction === "ON-TIME" ? "✅" : "⚠️";
+
+        resultBox.innerHTML = `
+            <div class="status ${statusClass}">
+                ${statusIcon} ${result.result.prediction}
+            </div>
+            <div class="info-row">
+                <span class="info-label">Confidence:</span>
+                <span class="info-value">${result.result.confidence}%</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Distance:</span>
+                <span class="info-value">${result.distance} miles</span>
+            </div>
+        `;
+
+        resultBox.style.display = "block";
+    } else {
+        resultBox.innerHTML = "❌ Error: " + result.error;
+        resultBox.style.display = "block";
+    }
+}
+
+// Allow Enter key to predict
+document.getElementById("time").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") predict();
+});
+</script>
+
+</body>
+</html>

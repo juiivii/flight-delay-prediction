@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flight Delay Predictor - Explainable AI</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* Glass Card */
+.container {
+    backdrop-filter: blur(20px);
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 20px;
+    padding: 35px;
+    width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    transition: 0.3s;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+    border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* Title */
+h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 24px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #a5b4fc;
+    font-size: 12px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+}
+
+/* Labels */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    color: #e0e7ff;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Inputs */
+select, input {
+    width: 100%;
+    padding: 12px 14px;
+    margin-top: 0px;
+    border-radius: 10px;
+    border: 2px solid rgba(99, 102, 241, 0.3);
+    outline: none;
+    background: rgba(30, 41, 59, 0.8);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+select:focus, input:focus {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* Result Card */
+.result {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    border-left: 4px solid #3b82f6;
+    font-size: 14px;
+    line-height: 1.8;
+    display: none;
+    color: #e0e7ff;
+}
+
+/* Highlight */
+.status {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.on-time {
+    color: #22c55e;
+}
+
+.delayed {
+    color: #ef4444;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 6px 0;
+}
+
+.info-label {
+    color: #a5b4fc;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Explanation Section (NEW!) */
+.explanation-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.explanation-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #60a5fa;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.feature-item {
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 8px 0;
+    border-left: 3px solid #3b82f6;
+}
+
+.feature-name {
+    font-weight: 600;
+    color: #e0e7ff;
+    font-size: 12px;
+}
+
+.feature-contribution {
+    font-size: 11px;
+    color: #a5b4fc;
+    margin-top: 4px;
+}
+
+.increases-delay {
+    color: #fca5a5;
+}
+
+.decreases-delay {
+    color: #86efac;
+}
+
+.impact-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.impact-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 2px;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #94a3b8;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* Scrollbar styling */
+.container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.container::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.3);
+    border-radius: 10px;
+}
+
+.container::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.5);
+    border-radius: 10px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.8);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>✈️ Flight Delay Predictor</h2>
+    <div class="subtitle">🤖 With SHAP Explainability</div>
+
+    <label for="origin">Origin Airport</label>
+    <select id="origin">
+        <option value="">-- Select Origin --</option>
+        <option value="JFK">JFK - New York (JFK)</option>
+        <option value="LAX">LAX - Los Angeles (LAX)</option>
+        <option value="ORD">ORD - Chicago (ORD)</option>
+        <option value="ATL">ATL - Atlanta (ATL)</option>
+        <option value="DFW">DFW - Dallas/Fort Worth (DFW)</option>
+        <option value="DEN">DEN - Denver (DEN)</option>
+        <option value="SFO">SFO - San Francisco (SFO)</option>
+        <option value="MIA">MIA - Miami (MIA)</option>
+        <option value="BOS">BOS - Boston (BOS)</option>
+    </select>
+
+    <label for="dest">Destination Airport</label>
+    <select id="dest">
+        <option value="">-- Select Destination --</option>
+        <option value="JFK">JFK - New York (JFK)</option>
+        <option value="LAX">LAX - Los Angeles (LAX)</option>
+        <option value="ORD">ORD - Chicago (ORD)</option>
+        <option value="ATL">ATL - Atlanta (ATL)</option>
+        <option value="DFW">DFW - Dallas/Fort Worth (DFW)</option>
+        <option value="DEN">DEN - Denver (DEN)</option>
+        <option value="SFO">SFO - San Francisco (SFO)</option>
+        <option value="MIA">MIA - Miami (MIA)</option>
+        <option value="BOS">BOS - Boston (BOS)</option>
+    </select>
+
+    <label for="airline">Airline</label>
+    <select id="airline">
+        <option value="">-- Select Airline --</option>
+        <option value="AA">American Airlines (AA)</option>
+        <option value="DL">Delta (DL)</option>
+        <option value="UA">United (UA)</option>
+        <option value="SW">Southwest (SW)</option>
+        <option value="JB">JetBlue (JB)</option>
+        <option value="NK">Spirit (NK)</option>
+        <option value="F9">Frontier (F9)</option>
+    </select>
+
+    <label for="date">Departure Date</label>
+    <input type="date" id="date" required>
+    
+    <label for="time">Departure Time</label>
+    <input type="time" id="time" required>
+
+    <button onclick="predict()">🔍 Predict & Explain</button>
+
+    <div class="loading" id="loading"></div>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+async function predict() {
+
+    const loading = document.getElementById("loading");
+    const resultBox = document.getElementById("result");
+
+    // Validate inputs
+    const origin = document.getElementById("origin").value;
+    const dest = document.getElementById("dest").value;
+    const airline = document.getElementById("airline").value;
+    const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
+
+    if (!origin || !dest || !airline || !date || !time) {
+        resultBox.innerHTML = "❌ Please fill in all fields";
+        resultBox.style.display = "block";
+        return;
+    }
+
+    loading.innerHTML = "🔄 Predicting & Generating Explanation...";
+    resultBox.style.display = "none";
+
+    const data = {
+        origin: origin,
+        dest: dest,
+        airline: airline,
+        dep_date: date,
+        dep_time: time
+    };
+
+    try {
+        const res = await fetch("/api/predict", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        loading.innerHTML = "";
+
+        if (result.success) {
+            const statusClass = result.result.prediction === "ON-TIME" ? "on-time" : "delayed";
+            const statusIcon = result.result.prediction === "ON-TIME" ? "✅" : "⚠️";
+
+            let html = `
+                <div class="status ${statusClass}">
+                    ${statusIcon} ${result.result.prediction}
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Confidence:</span>
+                    <span class="info-value">${result.result.confidence}%</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Distance:</span>
+                    <span class="info-value">${result.distance} miles</span>
+                </div>
+            `;
+
+            // ===== NEW: SHAP EXPLANATION SECTION =====
+            if (result.result.explanation && result.result.explanation.top_features) {
+                html += `
+                    <div class="explanation-section">
+                        <div class="explanation-title">🧠 Why This Prediction?</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 10px;">
+                            Top 5 factors influencing this prediction:
+                        </div>
+                `;
+
+                result.result.explanation.top_features.forEach((feature, index) => {
+                    const impactPercent = Math.min((Math.abs(feature.shap_value) * 100), 100);
+                    const isDelay = feature.contribution === "INCREASES DELAY";
+                    const contClass = isDelay ? "increases-delay" : "decreases-delay";
+                    const arrow = isDelay ? "📈" : "📉";
+                    
+                    html += `
+                        <div class="feature-item">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="feature-name">${index + 1}. ${feature.feature}</div>
+                                <span style="font-size: 11px; color: #a5b4fc;">${feature.value.toFixed(2)}</span>
+                            </div>
+                            <div class="feature-contribution ${contClass}">
+                                ${arrow} ${feature.contribution} (Impact: ${Math.abs(feature.shap_value).toFixed(3)})
+                            </div>
+                            <div class="impact-bar">
+                                <div class="impact-fill" style="width: ${impactPercent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                `;
+            }
+
+            resultBox.innerHTML = html;
+            resultBox.style.display = "block";
+        } else {
+            resultBox.innerHTML = "❌ Error: " + (result.error || "Unknown error occurred");
+            resultBox.style.display = "block";
+        }
+    } catch (error) {
+        loading.innerHTML = "";
+        resultBox.innerHTML = "❌ Connection Error: " + error.message + "<br><small>Make sure the server is running on port 3001</small>";
+        resultBox.style.display = "block";
+    }
+}
+
+// Allow Enter key to predict
+document.getElementById("time").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") predict();
+});
+</script>
+
+</body>
+</html>
