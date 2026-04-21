@@ -368,20 +368,12 @@ print(f"Accuracy: {accuracy:.1%}")
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
-- **Data Source**: [Open flight data repositories]
+- **Data Source**: https://www.transtats.bts.gov/ontime/
 - **Weather API**: [Open-Meteo](https://open-meteo.com)
-- **SHAP**: [SHAP: A Unified Approach to Interpreting Model Predictions](https://arxiv.org/abs/1705.07874)
-- **LightGBM**: [Microsoft LightGBM](https://lightgbm.readthedocs.io)
 
 ---
 
-## 📞 Support
 
-For issues, questions, or contributions:
-1. Check existing GitHub issues
-2. Review Jupyter notebooks for implementation details
-3. Run the explainable app for interactive examples
-
-**Happy predicting! ✈️📊**
+**Happy predicting! **
