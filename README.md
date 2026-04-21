@@ -1,4 +1,4 @@
-# ✈️ Flight Delay Prediction System
+# Flight Delay Prediction System
 
 > Machine learning system that predicts flight delays with **80% accuracy** using LightGBM and explains predictions using SHAP (SHapley Additive exPlanations).
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 🎯 Key Features
+## Key Features
 
 | Feature | Details |
 |---------|---------|
@@ -24,7 +24,7 @@
 
 ---
 
-## 📊 Model Performance
+## Model Performance
 
 | Metric | Value | Notes |
 |--------|-------|-------|
@@ -43,7 +43,7 @@
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### **Data Sources**
 - **Flight Data**: 5.8M+ historical flights from [Bureau of Transportation Statistics](https://www.transtats.bts.gov/ontime/)
@@ -77,7 +77,7 @@
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### **Installation**
 ```bash
